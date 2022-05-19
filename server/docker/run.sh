@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
 export DEBUG=${DEBUG:="mediasoup:INFO* *WARN* *ERROR*"}
+export RELEASE=${RELEASE:="mediasoup:*WARN* *ERROR*"}
 export INTERACTIVE=${INTERACTIVE:="true"}
-export PROTOO_LISTEN_PORT=${PROTOO_LISTEN_PORT:="4443"}
+export PROTOO_LISTEN_PORT=${PROTOO_LISTEN_PORT:="8443"}
 export HTTPS_CERT_FULLCHAIN=${HTTPS_CERT_FULLCHAIN:="/service/certs/fullchain.pem"}
 export HTTPS_CERT_PRIVKEY=${HTTPS_CERT_PRIVKEY:="/service/certs/privkey.pem"}
 export MEDIASOUP_LISTEN_IP=${MEDIASOUP_LISTEN_IP:="0.0.0.0"}
-export MEDIASOUP_MIN_PORT=${MEDIASOUP_MIN_PORT:="2000"}
-export MEDIASOUP_MAX_PORT=${MEDIASOUP_MAX_PORT:="2020"}
+export MEDIASOUP_MIN_PORT=${MEDIASOUP_MIN_PORT:="11000"}
+export MEDIASOUP_MAX_PORT=${MEDIASOUP_MAX_PORT:="20999"}
 
 # Valgrind related options.
 export MEDIASOUP_USE_VALGRIND=${MEDIASOUP_USE_VALGRIND:="false"}
@@ -15,6 +16,10 @@ export MEDIASOUP_VALGRIND_OPTIONS=${MEDIASOUP_VALGRIND_OPTIONS:="--leak-check=fu
 
 docker run \
 	--name=mediasoup-demo \
+	--network=host \
+	--restart=always \
+	--restart=on-failure:10 \
+	-d \
 	-p ${PROTOO_LISTEN_PORT}:${PROTOO_LISTEN_PORT}/tcp \
 	-p ${MEDIASOUP_MIN_PORT}-${MEDIASOUP_MAX_PORT}:${MEDIASOUP_MIN_PORT}-${MEDIASOUP_MAX_PORT}/udp \
 	-p ${MEDIASOUP_MIN_PORT}-${MEDIASOUP_MAX_PORT}:${MEDIASOUP_MIN_PORT}-${MEDIASOUP_MAX_PORT}/tcp \
@@ -35,5 +40,4 @@ docker run \
 	-e MEDIASOUP_VALGRIND_OPTIONS \
 	-e MEDIASOUP_WORKER_BIN \
 	-it \
-	--rm \
 	mediasoup-demo:latest

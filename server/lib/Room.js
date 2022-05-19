@@ -5,6 +5,9 @@ const Logger = require('./Logger');
 const config = require('../config');
 const Bot = require('./Bot');
 
+//status of send producerScore activeSpeaker downlinkBwe consumerScore events to clients.
+const notifyClient = false;
+
 const logger = new Logger('Room');
 
 /**
@@ -775,16 +778,18 @@ class Room extends EventEmitter
 			// 	'audioLevelObserver "volumes" event [producerId:%s, volume:%s]',
 			// 	producer.id, volume);
 
-			// Notify all Peers.
-			for (const peer of this._getJoinedPeers())
-			{
-				peer.notify(
-					'activeSpeaker',
-					{
-						peerId : producer.appData.peerId,
-						volume : volume
-					})
-					.catch(() => {});
+			if (notifyClient) {
+				// Notify all Peers.
+				for (const peer of this._getJoinedPeers())
+				{
+					peer.notify(
+						'activeSpeaker',
+						{
+							peerId : producer.appData.peerId,
+							volume : volume
+						})
+						.catch(() => {});
+				}
 			}
 		});
 
@@ -962,7 +967,7 @@ class Room extends EventEmitter
 						'transport "trace" event [transportId:%s, trace.type:%s, trace:%o]',
 						transport.id, trace.type, trace);
 
-					if (trace.type === 'bwe' && trace.direction === 'out')
+					if (trace.type === 'bwe' && trace.direction === 'out' && notifyClient)
 					{
 						peer.notify(
 							'downlinkBwe',
@@ -1063,9 +1068,10 @@ class Room extends EventEmitter
 					// logger.debug(
 					// 	'producer "score" event [producerId:%s, score:%o]',
 					// 	producer.id, score);
-
-					peer.notify('producerScore', { producerId: producer.id, score })
+					if (notifyClient) {
+						peer.notify('producerScore', { producerId: producer.id, score })
 						.catch(() => {});
+					}
 				});
 
 				producer.on('videoorientationchange', (videoOrientation) =>
@@ -1625,9 +1631,10 @@ class Room extends EventEmitter
 			// logger.debug(
 			// 	'consumer "score" event [consumerId:%s, score:%o]',
 			// 	consumer.id, score);
-
-			consumerPeer.notify('consumerScore', { consumerId: consumer.id, score })
+			if (notifyClient) {
+				consumerPeer.notify('consumerScore', { consumerId: consumer.id, score })
 				.catch(() => {});
+			}
 		});
 
 		consumer.on('layerschange', (layers) =>
