@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-export DEBUG=${DEBUG:="mediasoup:INFO* *WARN* *ERROR*"}
-export RELEASE=${RELEASE:="mediasoup:*WARN* *ERROR*"}
+export DEBUG=${RELEASE:="mediasoup:INFO* *WARN* *ERROR*"}
 export INTERACTIVE=${INTERACTIVE:="true"}
 export PROTOO_LISTEN_PORT=${PROTOO_LISTEN_PORT:="8443"}
 export HTTPS_CERT_FULLCHAIN=${HTTPS_CERT_FULLCHAIN:="/service/certs/fullchain.pem"}

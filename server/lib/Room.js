@@ -796,12 +796,13 @@ class Room extends EventEmitter
 		this._audioLevelObserver.on('silence', () =>
 		{
 			// logger.debug('audioLevelObserver "silence" event');
-
-			// Notify all Peers.
-			for (const peer of this._getJoinedPeers())
-			{
-				peer.notify('activeSpeaker', { peerId: null })
-					.catch(() => {});
+			if (notifyClient) {
+				// Notify all Peers.
+				for (const peer of this._getJoinedPeers())
+				{
+					peer.notify('activeSpeaker', { peerId: null })
+						.catch(() => {});
+				}
 			}
 		});
 	}
@@ -1682,14 +1683,15 @@ class Room extends EventEmitter
 			// of this new stream once its PeerConnection is already ready to process
 			// and associate it.
 			await consumer.resume();
-
-			consumerPeer.notify(
-				'consumerScore',
-				{
-					consumerId : consumer.id,
-					score      : consumer.score
-				})
-				.catch(() => {});
+			if (notifyClient) {
+				consumerPeer.notify(
+					'consumerScore',
+					{
+						consumerId : consumer.id,
+						score      : consumer.score
+					})
+					.catch(() => {});
+			}
 		}
 		catch (error)
 		{
